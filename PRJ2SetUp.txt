@@ -1,0 +1,50 @@
+#create a Spool Directory and Update .conf file :-
+#Spooldir in my case is /home/acadgild/Desktop/flume_sink
+agent1.sources.source1_1.spoolDir = /home/acadgild/Desktop/flume_sink
+
+#Sink is /flume_sink under hdfs
+agent1.sinks.hdfs-sink1_1.hdfs.path = hdfs://localhost.localdomain:9000/flume_sink
+
+Step 2: execute the command to transfer data into HDFS
+flume-ng agent -n agent1 -f /usr/local/flume/conf/AcadgildLocal.conf
+
+
+The file is Stored over HDFS as
+/flume_sink/FlumeData.1469777750126
+-------------------------------------------------------------------------------------------------
+run Pig scripts for each problem statements
+-------------------------------------------------------------------------------------------------
+
+
+-------------------------------------------------------------------------------------------------
+and result is stored on HDFS (for each problem statement separatetly):-
+
+prj2/AnswerQ2P1/part-r-00000
+prj2/AnswerQ2P2/part-r-00000
+prj2/AnswerQ2P3/part-r-00000
+prj2/AnswerQ2P4/part-r-00000
+
+-------------------------------------------------------------------------------------------------
+Get into MySql Shell and create table to hold result
+
+$ sudo service mysqld start
+$ mysql -u root
+
+CREATE DATABSE project2 ;
+USE project2 ;
+create table AnswerQ2P1 (TimelyResponseCount BIGINT(15)) ;
+create table AnswerQ2P2 (SameDayForwardedCount BIGINT(15)) ;
+create table AnswerQ2P3 (Company varchar(50),TotalCount BIGINT(15)) ;
+create table AnswerQ2P4 (Year INT(4),TotalCount BIGINT(15)) ;
+
+
+------------------------------------------------------------------
+Using Sqoop export data
+
+sqoop export --connect jdbc:mysql://localhost/project2 --username 'root' -P --table AnswerQ2P1 --export-dir 'prj2/AnswerQ2P1/part-r-00000' --input-fields-terminated-by ',' -m1
+
+sqoop export --connect jdbc:mysql://localhost/project2 --username 'root' -P --table AnswerQ2P2 --export-dir 'prj2/AnswerQ2P2/part-r-00000' --input-fields-terminated-by ',' -m1
+
+sqoop export --connect jdbc:mysql://localhost/project2 --username 'root' -P --table AnswerQ2P3 --export-dir 'prj2/AnswerQ2P3/part-r-00000' --input-fields-terminated-by '\t' -m1
+
+sqoop export --connect jdbc:mysql://localhost/project2 --username 'root' -P --table AnswerQ2P4 --export-dir 'prj2/AnswerQ2P4/part-r-00000' --input-fields-terminated-by '\t' -m1
